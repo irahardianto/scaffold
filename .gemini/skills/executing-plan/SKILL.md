@@ -41,7 +41,7 @@ Load plan, review critically, execute tasks in batches, report for review betwee
 For each task:
 1. Mark as in_progress
 2. If develop frontend: USE frontend-design skill
-3. **Critical:** Before executing the task, RESEARCH using knowledge-searching skill to retrieve language/library/framework details related to the requirements implementations. **Research ONLY information directly relevant to implementing the current task.**
+3. **Critical:** Before executing the task, RESEARCH using knowledge-searching skill to retrieve languages/libraries details related to the requirements implementations. **Research ONLY information directly relevant to implementing the current task.**
 4. Follow each step exactly (plan has bite-sized steps), USE Serena tools for Symbol-level precision editing.  
    - `find_symbol()` -> Performs a global (or local) search for symbols with/containing a given name/substring (optionally filter ed by type).
    - `find_referencing_symbols()` -> Finds symbols that reference the symbol at the given location (optionally filtered by type).

@@ -327,8 +327,8 @@ Infrastructure → Ports (Interfaces) ← Domain
 **Universal Rule: Context → Feature → Layer**
 
 **1. Level 1: Repository Scope (Conditional)**
-   - **Scenario A (Monorepo/Full-Stack):** Root contains `src/` grouping distinct applications (e.g., `src/backend`, `src/web`).
-   - **Scenario B (Single Service):** Root **IS** the application. Do not create `src/backend` wrapper. Start directly at Level 2.
+   - **Scenario A (Monorepo/Full-Stack):** Root contains `apps/` grouping distinct applications (e.g., `apps/backend`, `apps/web`).
+   - **Scenario B (Single Service):** Root **IS** the application. Do not create `apps/backend` wrapper. Start directly at Level 2.
 
 **2. Level 2: Feature Organization**
    - **Rule:** Divide application into vertical business slices (e.g., `user/`, `order/`, `payment/`).
@@ -343,7 +343,7 @@ Infrastructure → Ports (Interfaces) ← Domain
 
 **A. Standard Single Service (Backend, Microservice or MVC)**
 ```
-  src/  
+  apps/  
     user/                       # Feature: User management      
       domain/                   # Business logic (center)     
         user.{ext}              # Entity      
@@ -365,7 +365,7 @@ Infrastructure → Ports (Interfaces) ← Domain
 **Use this structure when managing monolithic full-stack applications with backend, frontend, mobile in a single repository.*
 *Clear Boundaries: Backend business logic (Hexagonal) is isolated from Frontend UI logic, even if they share the same repo*
 ```    
-  src/
+  apps/
     backend/                        # Backend application source code  
         user/                       # Feature: User management      
         domain/                     # Business logic (center)     
@@ -1026,9 +1026,9 @@ All API errors must follow a consistent envelope structure, matching the success
 **2. End-to-End Tests (Separate)**
 - **Rule:** Place in a dedicated `e2e/` folder
   - **Single Service:** `e2e/` at project root
-  - **Monorepo:** `src/e2e/` subdivided by test scope:
-    - `src/e2e/api/` for full API flow E2E tests (HTTP → Database)
-    - `src/e2e/ui/` for full-stack E2E tests (Browser → Backend → Database)
+  - **Monorepo:** `apps/e2e/` subdivided by test scope:
+    - `apps/e2e/api/` for full API flow E2E tests (HTTP → Database)
+    - `apps/e2e/ui/` for full-stack E2E tests (Browser → Backend → Database)
 - **Why:** E2E tests cross boundaries and don't belong to a single feature.
 - **Naming:** Follow `{feature}-{ui/api}.e2e.test.{ext}` (Universal - configure test runner to match this pattern `**/*.e2e.test.*`)
   - Example: 
@@ -1040,7 +1040,7 @@ All API errors must follow a consistent envelope structure, matching the success
 
 **A. Backend (Hexagonal)**
 ```
-src/
+apps/
   user/
     domain/
       user-service.ts
@@ -1056,7 +1056,7 @@ e2e/
 
 **B. Frontend (Feature-Sliced)**
 ```
-src/
+apps/
   features/
     auth/
       domain/
@@ -1071,7 +1071,7 @@ e2e/
 
 **C. Monorepo (Multi-Stack)**
 ```
-src/
+apps/
   backend/
     user/...
   frontend/
