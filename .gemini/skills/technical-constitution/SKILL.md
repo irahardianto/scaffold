@@ -462,7 +462,8 @@ err = store.SaveOrder(ctx, order)
     frontend/                       # Frontend application source code
       assets/                       # Fonts, Images
       components/                   # Shared Component (Buttons, Inputs) - Dumb UI, No Domain Logic
-        TaskInput.vue
+        BaseButton.vue
+        BaseInput.vue
       layouts/                      # App shells (Sidebar, Navbar wrappers)
       utils/                        # Date formatting, validation helpers
       features/                     # Business Features (Vertical Slices)
