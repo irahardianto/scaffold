@@ -1,6 +1,6 @@
 ---
 name: technical-constitution
-description: Generates technical implementation plans and architectural strategies that enforce the Project Constitution. Use when designing new features, starting implementation tasks, refactoring code, or ensuring compliance with critical standards like Hexagonal Architecture, security mandates, testing strategies, and error handling.
+description: Generates technical implementation plans and architectural strategies that enforce the Project Constitution. Use when designing new features, starting implementation tasks, refactoring code, or ensuring compliance with critical standards like Testability-First Architecture, security mandates, testing strategies, and error handling.
 ---
 
 # The Constitution: Technical Preference Universal Principles
@@ -20,61 +20,40 @@ Before executing your task, you must perform a "Constitution Lookup":
 
 ## 1. The Supremacy Clause & Conflict Resolution
 
-### Meta-Instructions
-
-**CRITICAL:** This document defines the *Architectural Laws* of the project.
-
-**Law vs. Idiom:**
-- You must implement these laws using the target language's native idioms. For example:
-    - Go: Use implicit interfaces defined in consumer (Domain layer). Do not use Java-style `IInterface` naming.
-    - Python: Use `typing.Protocol` for Ports, to enforce contracts without inheritance coupling.
-    - TypeScript: Use `interface` for Ports with clear Dependency Injection (functional or class-based) to satisfy the Hexagonal boundaries.
-
-**Knowledge Retrieval:**
-- You are an expert in the target language. Do not ask for syntax guides.
-- Use your internal knowledge base for syntax, libraries, and tooling.
-
-**Execution Protocol:**
-- **Before Coding:** Mentally "load" relevant principles for the task (e.g., if writing an API handler, load 'Hexagonal Architecture' and 'Error Handling').  
-- **After Coding:** Verify output against specific constraints in this document (e.g., "Did I return the standard JSON error format?").
-
-### Rule Precedence Hierarchy (Highest to Lowest)
-
 When directives conflict or seem impossible to satisfy simultaneously, follow this precedence:
 
-**1. Security Principles (Non-Negotiable)**
-- OWASP Top 10 compliance
-- Input validation and sanitization
-- Authentication and authorization
-- Secrets management
-- No information leakage
-- **Action:** Security ALWAYS wins. Refactor other requirements to satisfy security.
+1. **Security Principles** [Non-Negotiable]
+   - OWASP Top 10 compliance
+   - Input validation and sanitization
+   - Authentication and authorization
+   - Secrets management
+   - No information leakage
+   - **Action:** Security ALWAYS wins. Refactor other requirements to satisfy security.
 
-**2. Hexagonal Architecture (Structural Law)**
-- Dependency inversion (dependencies point inward)
-- Port/adapter separation
-- Domain purity (no infrastructure in core)
-- **Action:** If language pattern conflicts (e.g., Active Record), refactor to satisfy architecture.
-- *This supersedes the general "Law vs. Idiom" rule above when conflicts arise.*
+2. **Testability & Modularity** [Structural Law]
+   - I/O isolation (dependencies mockable in tests)
+   - Pure business logic (no side effects in core logic)
+   - Clear module boundaries with contracts
+   - **Action:** If code cannot be unit tested without external dependencies, refactor to add abstraction layer.
 
-**3. Error Handling Standards (Reliability Law)**
-- No silent failures
-- Correlation IDs required
-- JSON envelope format
-- Resource cleanup in all paths
-- **Action:** All error paths must be explicit. No exceptions.
+3. **Error Handling Standards** [Reliability Law]
+   - No silent failures
+   - Correlation IDs required
+   - JSON envelope format
+   - Resource cleanup in all paths
+   - **Action:** All error paths must be explicit. No exceptions.
 
-**4. Language Idioms (Implementation Preference)**
-- Use native patterns (defer, RAII, context managers)
-- Follow community conventions
-- Leverage standard library
-- **Action:** Implement above laws idiomatically, don't blindly copy other languages.
+4. **Language Idioms** [Implementation Preference]
+   - Use native patterns (defer, RAII, context managers)
+   - Follow community conventions
+   - Leverage standard library
+   - **Action:** Implement above laws idiomatically, don't blindly copy other languages.
 
-**5. Performance Optimizations (Measure First)**
-- Appropriate data structures
-- Profile before optimizing
-- Caching strategies
-- **Action:** Only optimize with measured bottlenecks. Correctness > speed.
+5. **Performance Optimizations** [Measure First]
+   - Appropriate data structures
+   - Profile before optimizing
+   - Caching strategies
+   - **Action:** Only optimize with measured bottlenecks. Correctness > speed
 
 ### Escalation Protocol
 
@@ -122,7 +101,7 @@ When directives conflict or seem impossible to satisfy simultaneously, follow th
 
 | Topic | Critical Constraint (Summary) |
 | :---- | :---- |
-| **Architecture** | Hexagonal (Ports & Adapters). Domain is pure. Feature-based packaging. |
+| **Architecture** | Testability-First Design. Domain is pure, All code must be independently testable. Feature-based packaging. |
 | **Essential Software Design** | SOLID Principles, Essential Design Practices(DRY, YAGNI, KISS), Code Organization Principles. |
 | **Error Handling** | JSON format only (`code`, `message`, `correlationId`). No silent failures. No `try/catch` swallowing. |
 | **Testing** | 70/20/10 Pyramid. Mock Ports, not Internals. Integration tests use real infrastructure (Testcontainers). |
@@ -139,15 +118,22 @@ When directives conflict or seem impossible to satisfy simultaneously, follow th
 
 - [The Constitution: Technical Preference Universal Principles](#the-constitution-technical-preference-universal-principles)
   - [1. The Supremacy Clause \& Conflict Resolution](#1-the-supremacy-clause--conflict-resolution)
-    - [Meta-Instructions](#meta-instructions)
-    - [Rule Precedence Hierarchy (Highest to Lowest)](#rule-precedence-hierarchy-highest-to-lowest)
     - [Escalation Protocol](#escalation-protocol)
       - [Example:](#example)
   - [2. Critical Constraints Manifest (Context Triggers)](#2-critical-constraints-manifest-context-triggers)
   - [3. Table of Contents](#3-table-of-contents)
-  - [Architectural Patterns](#architectural-patterns)
-    - [Hexagonal Architecture (Ports \& Adapters)](#hexagonal-architecture-ports--adapters)
+  - [Architectural Patterns - Testability-First Design](#architectural-patterns---testability-first-design)
+    - [Core Principle](#core-principle)
+    - [Universal Architecture Rules](#universal-architecture-rules)
+      - [Rule 1: I/O Isolation](#rule-1-io-isolation)
+      - [Rule 2: Pure Business Logic](#rule-2-pure-business-logic)
+      - [Rule 3: Module Boundaries](#rule-3-module-boundaries)
+      - [Rule 4: Dependency Direction](#rule-4-dependency-direction)
       - [Layout Examples](#layout-examples)
+    - [Pattern Discovery Protocol](#pattern-discovery-protocol)
+    - [Testing Requirements](#testing-requirements)
+    - [Language-Specific Idioms](#language-specific-idioms)
+    - [Enforcement Checklist](#enforcement-checklist)
     - [Related Principles](#related-principles)
   - [Core Design Principles](#core-design-principles)
     - [SOLID Principles](#solid-principles)
@@ -178,6 +164,9 @@ When directives conflict or seem impossible to satisfy simultaneously, follow th
     - [Test-Driven Development (TDD)](#test-driven-development-tdd)
     - [Test Doubles Strategy](#test-doubles-strategy)
     - [Test Organization](#test-organization)
+      - [A. Backend (Go - Feature-Based)](#a-backend-go---feature-based)
+      - [B. Frontend (Vue - Feature-Sliced)](#b-frontend-vue---feature-sliced)
+      - [C. Monorepo (Multi-Stack)](#c-monorepo-multi-stack)
     - [Test Quality Standards](#test-quality-standards)
     - [Related Principles](#related-principles-5)
   - [Configuration Management Principles](#configuration-management-principles)
@@ -198,7 +187,23 @@ When directives conflict or seem impossible to satisfy simultaneously, follow th
     - [Security Considerations](#security-considerations)
     - [Related Principles](#related-principles-7)
   - [Logging and Observability Principles](#logging-and-observability-principles)
-    - [Universal Logging Standards](#universal-logging-standards)
+    - [Logging Standards](#logging-standards)
+      - [Log Levels (Standard Priority)](#log-levels-standard-priority)
+      - [Logging Rules](#logging-rules)
+      - [Language-Specific Implementations](#language-specific-implementations)
+        - [Go (using slog standard library)](#go-using-slog-standard-library)
+        - [TypeScript/Node.js (using pino)](#typescriptnodejs-using-pino)
+      - [Python (using structlog)](#python-using-structlog)
+      - [Log Patterns by Operation Type](#log-patterns-by-operation-type)
+        - [API Request/Response](#api-requestresponse)
+        - [Database Operations](#database-operations)
+        - [External API Calls](#external-api-calls)
+        - [Background Jobs](#background-jobs)
+        - [Error Scenarios](#error-scenarios)
+      - [Environment-Specific Configuration](#environment-specific-configuration)
+      - [Testing Logs](#testing-logs)
+      - [Monitoring Integration](#monitoring-integration)
+      - [Checklist for Every Feature](#checklist-for-every-feature)
     - [Observability Strategy](#observability-strategy)
     - [Related Principles](#related-principles-8)
   - [Code Idioms and Conventions](#code-idioms-and-conventions)
@@ -226,102 +231,191 @@ When directives conflict or seem impossible to satisfy simultaneously, follow th
     - [Secrets Management](#secrets-management)
     - [Related Principles](#related-principles-10)
 
-## Architectural Patterns
+## Architectural Patterns - Testability-First Design
 
-### Hexagonal Architecture (Ports & Adapters)
+### Core Principle
+All code must be independently testable without running the full application or external infrastructure.
 
-**Philosophy:** Isolate business logic from infrastructure concerns through clear boundaries and dependency inversion.
+### Universal Architecture Rules
 
-**Core Concepts:**
+#### Rule 1: I/O Isolation
+**Problem:** Tightly coupled I/O makes tests slow, flaky, and environment-dependent.
 
-**1. Domain Layer (Center/Hexagon Core)**
+**Solution:** Abstract all I/O behind interfaces/contracts:
+- Database queries
+- HTTP calls (to external APIs)
+- File system operations
+- Time/randomness (for determinism)
+- Message queues
 
-- **What it is:** Pure business logic, entities, domain services, business rules, validation  
-- **Dependencies:** NONE - no frameworks, no infrastructure libraries, no external dependencies  
-- **Responsibility:** Implement business rules and domain-specific validations  
-- **Test with:** Unit tests with mocked ports (fast, no real infrastructure)
+**Implementation Discovery:**
+1. Search for existing abstraction patterns: `find_symbol("Interface")`, `find_symbol("Mock")`, `find_symbol("Repository")`
+2. Match the style (interface in Go, Protocol in Python, interface in TypeScript)
+3. Implement production adapter AND test adapter
 
-**2. Ports (Interfaces/Contracts)**
+**Example (Go):**
 
-- **What they are:** Abstract contracts between domain and infrastructure  
-    
-- **Two types:**  
-    
-  - **Driving Ports (Primary/Inbound):** How external actors USE the domain  
-      
-    - Examples: Use cases, command handlers, application services, queries  
-    - Called BY: Driving adapters (HTTP controllers, CLI commands, message consumers)  
-    - Direction: External world → Domain
+```Go
 
-    
+// Contract (port)
+type UserStore interface {
+  Create(ctx context.Context, user User) error
+  GetByEmail(ctx context.Context, email string) (*User, error)
+}
 
-  - **Driven Ports (Secondary/Outbound):** How domain USES external services  
-      
-    - Examples: Repository interfaces, gateway interfaces, event publishers, notification services  
-    - Implemented BY: Driven adapters (database repos, API clients, message producers)  
-    - Direction: Domain → External world
+// Production adapter
+type PostgresUserStore struct { /* ... */ }
 
-
-- **Location:** Defined in domain layer, close to where they're used
-
-**3. Adapters (Implementations)**
-
-- **What they are:** Concrete implementations that connect domain to real world  
-    
-- **Two types:**  
-    
-  - **Driving Adapters (Primary):** Entry points to the system  
-      
-    - Examples: HTTP REST controllers, GraphQL resolvers, CLI commands, message queue consumers, gRPC servers  
-    - Responsibility: Translate external requests into domain operations
-
-    
-
-  - **Driven Adapters (Secondary):** External dependencies  
-      
-    - Examples: PostgreSQL repositories, Redis caches, S3 file storage, external API clients, email services  
-    - Responsibility: Implement driven ports using specific technologies
-
-
-- **Location:** Infrastructure layer, completely separate from domain
-
-**The Dependency Rule:**
+// Test adapter
+type MockUserStore struct { /* ... */ }
 ```
-Infrastructure → Ports (Interfaces) ← Domain
 
-     ↑                                   ↑
-     └───────────────────────────────────┘
+**Example (TypeScript/Vue):**
+```typescript
 
-         Dependencies point INWARD
+// Contract (service layer)
+export interface TaskAPI {
+  createTask(title: string): Promise<Task>;
+  getTasks(): Promise<Task[]>;
+}
+
+// Production adapter
+export class EncoreTaskAPI implements TaskAPI { /* ... */ }
+
+// Test adapter (vi.mock or manual)
+export class MockTaskAPI implements TaskAPI { /* ... */ }
+
 ```
-1
-**Key Principles:**
 
-- Adapters depend on ports (interfaces), never directly on domain implementations  
-- Domain defines ports based on ITS needs, knows nothing about adapters  
-- All dependencies point toward the domain (Dependency Inversion Principle)  
-- Domain can be compiled and tested without any infrastructure code
+#### Rule 2: Pure Business Logic
+**Problem:** Business rules mixed with I/O are impossible to test without infrastructure.
 
-**Benefits:**
+**Solution:** Extract calculations, validations, transformations into pure functions:
+- Input → Output, no side effects
+- Deterministic: same input = same output
+- No I/O inside business rules
 
-- ✅ **Testability:** Test domain logic without real databases/APIs (use in-memory implementations)  
-- ✅ **Flexibility:** Swap PostgreSQL for MongoDB without changing domain code  
-- ✅ **Maintainability:** Changes to infrastructure don't affect business logic  
-- ✅ **Team autonomy:** Teams can work on adapters independently  
-- ✅ **Technology evolution:** Migrate frameworks without rewriting domain  
-- ✅ **Clear boundaries:** Obvious separation between "what" (domain) and "how" (infrastructure)
+**Examples:**
+```
 
-**Testing Strategy:**
+// ✅ Pure function - easy to test
+func calculateDiscount(items []Item, coupon Coupon) (float64, error) {
+// Pure calculation, returns value
+}
 
-- **Unit Tests:** Domain services with mocked ports (fast, no infrastructure, 70% of tests)  
-- **Integration Tests:** Adapters with real infrastructure using Testcontainers (medium speed, 20% of tests)  
-- **E2E Tests:** Full system through driving adapters (slow, critical paths only, 10% of tests)
+// ❌ Impure - database call inside
+func calculateDiscount(ctx context.Context, items []Item, coupon Coupon) (float64, error) {
+validCoupon, err := db.GetCoupon(ctx, coupon.ID) // NO!
+}
+
+```
+
+**Correct approach:**
+```
+
+// 1. Fetch dependencies first (in handler/service)
+validCoupon, err := store.GetCoupon(ctx, coupon.ID)
+
+// 2. Pass to pure logic
+discount, err := calculateDiscount(items, validCoupon)
+
+// 3. Persist result
+err = store.SaveOrder(ctx, order)
+
+```
+
+#### Rule 3: Module Boundaries
+**Problem:** Cross-module coupling makes changes ripple across codebase.
+
+**Solution:** Feature-based organization with clear public interfaces:
+- One feature = one directory
+- Each module exposes a public API (exported functions/classes)
+- Internal implementation details are private
+- Cross-module calls only through public API
+
+**Directory Structure (Language-Agnostic):**
+```
+
+/task
+
+- public_api.{ext}      # Exported interface
+- business.{ext}        # Pure logic
+- store.{ext}           # I/O abstraction (interface)
+- postgres.{ext}        # I/O implementation
+- mock.{ext}            # Test implementation
+- test.{ext}            # Unit tests (mocked I/O)
+- integration.test.{ext} # Integration tests (real I/O)
+
+```
+
+**Go Example:**
+```
+
+/apps/backend/task
+
+- task.go               # Encore API endpoints (public)
+- business.go           # Pure domain logic
+- store.go              # interface UserStore
+- postgres.go           # implements UserStore
+- task_test.go          # Unit tests with MockStore
+- task_integration_test.go # Integration with real DB
+
+```
+
+**Vue Example:**
+```
+
+/apps/frontend/src/features/task
+
+- index.ts              # Public exports
+- task.service.ts       # Business logic
+- task.api.ts           # interface TaskAPI
+- task.api.encore.ts    # implements TaskAPI
+- task.store.ts         # Pinia store (uses TaskAPI)
+- task.service.spec.ts  # Unit tests (mock API)
+
+```
+
+#### Rule 4: Dependency Direction
+**Principle:** Dependencies point inward toward business logic.
+
+```
+
+┌─────────────────────────────────────┐
+│  Infrastructure Layer               │
+│  (DB, HTTP, Files, External APIs)   │
+│                                     │
+│  Depends on ↓                       │
+└─────────────────────────────────────┘
+↓
+┌─────────────────────────────────────┐
+│  Contracts/Interfaces Layer         │
+│  (Abstract ports - no implementation)│
+│                                     │
+│  Depends on ↓                       │
+└─────────────────────────────────────┘
+↓
+┌─────────────────────────────────────┐
+│  Business Logic Layer               │
+│  (Pure functions, domain rules)     │
+│  NO dependencies on infrastructure  │
+└─────────────────────────────────────┘
+
+```
+
+**Never:**
+- Business logic imports database driver
+- Domain entities import HTTP framework
+- Core calculations import config files
+
+**Always:**
+- Infrastructure implements interfaces defined by business layer
+- Business logic receives dependencies via injection
 
 **Package Structure Philosophy:**
 
-
 - **Organize by FEATURE, not by technical layer**  
-- Each feature is a vertical slice containing domain + ports + adapters  
+- Each feature is a vertical slice
 - Enables modular growth, clear boundaries, and independent deployability  
 
 **Universal Rule: Context → Feature → Layer**
@@ -334,77 +428,120 @@ Infrastructure → Ports (Interfaces) ← Domain
    - **Rule:** Divide application into vertical business slices (e.g., `user/`, `order/`, `payment/`).
    - **Anti-Pattern:** Do NOT organize by technical layer (e.g., `controllers/`, `models/`, `services/`) at the top level.
 
-**3. Level 3: Hexagonal Layers (Internal Feature Structure)**
-   - **Domain:** Pure business logic and entities.
-   - **Ports:** Interfaces defining interactions.
-   - **Adapters:** Infrastructure implementations.
-
 #### Layout Examples
 
 **A. Standard Single Service (Backend, Microservice or MVC)**
 ```
   apps/  
-    user/                       # Feature: User management      
-      domain/                   # Business logic (center)     
-        user.{ext}              # Entity      
-        user-service.{ext}      # Domain service  
-        user-repository.{ext}   # Driven port (interface)  
-      adapters/      
-        http/                   # Driving adapter  
-          user-controller.{ext}  
-        postgres/               # Driven adapter  
-          postgres-user-repository.{ext}  
-        redis/                  # Another driven adapter  
-          redis-user-cache.{ext}  
+    task/                       # Feature: Task management    
+      task.go                      # API handlers (public interface)
+      task_test.go                 # Unit tests (mocked dependencies)
+      business.go                  # Pure business logic
+      business_test.go             # Unit tests (pure functions)
+      store.go                     # interface TaskStore
+      postgres.go                  # implements TaskStore
+      postgres_integration_test.go # Integration tests (real DB)
+      mock_store.go               # Test implementation
+    migrations/
+      001_create_tasks.up.sql
     order/                      # Feature: Order management  
-      domain/  
-      adapters/
+      ...
 ```
 
 **B. Monorepo Layout (Multi-Stack):**
 **Use this structure when managing monolithic full-stack applications with backend, frontend, mobile in a single repository.*
-*Clear Boundaries: Backend business logic (Hexagonal) is isolated from Frontend UI logic, even if they share the same repo*
+*Clear Boundaries: Backend business logic is isolated from Frontend UI logic, even if they share the same repo*
 ```    
   apps/
     backend/                        # Backend application source code  
-        user/                       # Feature: User management      
-        domain/                     # Business logic (center)     
-            user-entity.{ext}       # Entity      
-            user-service.{ext}      # Domain service  
-            user-repository.{ext}   # Driven port (interface)  
-        adapters/      
-            http/                   # Driving adapter  
-            user-controller.{ext}  
-            postgres/               # Driven adapter  
-            postgres-user-repository.{ext}  
-            redis/                  # Another driven adapter  
-            redis-user-cache.{ext}  
+        task/                       # Feature: Task management  
+          task.go                      # API handlers (public interface)
+          ...   
         order/                      # Feature: Order management  
-        domain/  
-        adapters/
+        ...
     frontend/                       # Frontend application source code
       assets/                       # Fonts, Images
-      components/                   # Shared Technical UI (Buttons, Inputs) - Dumb UI, No Domain Logic
+      components/                   # Shared Component (Buttons, Inputs) - Dumb UI, No Domain Logic
+        TaskInput.vue
       layouts/                      # App shells (Sidebar, Navbar wrappers)
       utils/                        # Date formatting, validation helpers
-      features/                     # Business Features (Hexagonal Slices)
-        auth/                       # Feature: Auth (Frontend)
-          domain/                   # Pure TS, Logic: Session State, Validation, Interfaces (Ports)
-            auth.entity.ts
-            auth.service.ts         # State (Pinia store often lives here or is called by this)
-            auth.api.interface.ts   # Driven Port 
-            auth.schema.ts          # Zod validation
-          ui/                       # Driving Adapter: Components / Pages
-            LoginForm.{ext}         # Component
-            LoginPage.{ext}         # Page
-          api/                      # Driven Adapter: Axios/Fetch Client
-            auth.api.ts             # Axios/Fetch calls
-        profile/
-          domain/
-          ui/
-          api/
+      features/                     # Business Features (Vertical Slices)
+        task/                       # Feature: Task management
+          TaskForm.vue              # Feature-specific components
+          TaskListItem.vue          # Feature-specific components
+          TaskFilters.vue           # Feature-specific components
+          index.ts                  # Public exports
+          task.service.ts           # Business logic
+          task.api.ts               # interface TaskAPI
+          task.api.encore.ts        # Production implementation
+          task.store.ts             # Pinia store
+        order/
+      ...
 ```
 > This Feature/Domain/UI/API structure is framework-agnostic. It applies equally to React, Vue, Svelte, and Mobile (React Native/Flutter). 'UI' always refers to the framework's native component format (.tsx, .vue, .svelte, .dart).
+
+### Pattern Discovery Protocol
+
+**Before implementing ANY feature:**
+
+1. **Search existing patterns** (MANDATORY):
+```
+
+find_symbol("Interface") OR find_symbol("Repository") OR find_symbol("Service")
+
+```
+
+2. **Examine 3 existing modules** for consistency:
+- How do they handle database access?
+- Where are pure functions vs I/O operations?
+- What testing patterns exist?
+
+3. **Document pattern** (80%+ consistency required):
+- "Following pattern from [task, user, auth] modules"
+- "X/Y modules use interface-based stores"
+- "All tests use [MockStore, vi.mock, TestingPinia] pattern"
+
+4. **If consistency <80%**: STOP and report fragmentation to human.
+
+### Testing Requirements
+
+**Unit Tests (must run without infrastructure):**
+- Mock all I/O dependencies
+- Test business logic in isolation
+- Fast (<100ms per test)
+- 85%+ coverage of business paths
+
+**Integration Tests (must test real infrastructure):**
+- Use real database (Testcontainers, Firebase emulator)
+- Test adapter implementations
+- Verify contracts work end-to-end
+- Cover all I/O adapters
+
+**Test Organization:**
+- Unit/Integration tests: Co-located with implementation
+- E2E tests: Separate `/e2e` directory
+
+### Language-Specific Idioms
+
+**How to achieve testability in each ecosystem:**
+
+| Language/Framework | Abstraction Pattern | Test Strategy |
+|-------------------|---------------------|---------------|
+| **Go** | Interface types, dependency injection | Table-driven tests, mock implementations |
+| **TypeScript/Vue** | Interface types, service layer, Pinia stores | Vitest with `vi.mock`, `createTestingPinia` |
+| **TypeScript/React** | Interface types, service layer, Context/hooks | Jest with mock factories, React Testing Library |
+| **Python** | `typing.Protocol` or abstract base classes | pytest with fixtures, monkeypatch |
+| **Rust** | Traits, dependency injection | Unit tests with mock implementations, `#[cfg(test)]` |
+| **Flutter/Dart** | Abstract classes, dependency injection | `mockito` package, widget tests |
+
+### Enforcement Checklist
+
+Before marking code complete, verify:
+- [ ] Can I run unit tests without starting database/external services?
+- [ ] Are all I/O operations behind an abstraction?
+- [ ] Is business logic pure (no side effects)?
+- [ ] Do integration tests exist for all adapters?
+- [ ] Does pattern match existing codebase (80%+ consistency)?
 
 ### Related Principles
 - [SOLID: Dependency Inversion](#dependency-inversion-principle-dip) - Ports as abstractions
@@ -445,7 +582,7 @@ Infrastructure → Ports (Interfaces) ← Domain
 
 - Depend on abstractions (interfaces/ports), not concretions (implementations/adapters)  
 - High-level modules should not depend on low-level modules; both should depend on abstractions  
-- Core principle enabling hexagonal architecture and testability
+- Core principle enabling Testability-First architecture
 
 ### Essential Design Practices
 
@@ -475,7 +612,6 @@ Infrastructure → Ports (Interfaces) ← Domain
 
 - Divide program functionality into distinct sections with minimal overlap  
 - Each concern should be isolated in its own module or layer  
-- Hexagonal architecture enforces this (domain vs infrastructure)
 
 **Composition Over Inheritance:**
 
@@ -1038,50 +1174,81 @@ All API errors must follow a consistent envelope structure, matching the success
 
 **Directory Layout Example:**
 
-**A. Backend (Hexagonal)**
-```
-apps/
-  user/
-    domain/
-      user-service.ts
-      user-service.spec.ts # Unit Test
-    adapters/
-      postgres/
-        user-repo.ts
-        user-repo.integration.spec.ts           # Integration Test
-e2e/
-  user-registration-api.e2e.test.ts             # E2E: Full API flow
-  user-login-api.e2e.test.ts
-```
-
-**B. Frontend (Feature-Sliced)**
-```
-apps/
-  features/
-    auth/
-      domain/
-        auth.service.ts
-        auth.service.spec.ts                    # Unit Test
-      ui/
-        LoginForm.tsx
-        LoginForm.spec.tsx                      # Component Test
-e2e/
-  user-signup-flow-ui.e2e.test.ts               # E2E: Full UI journey
-```
-
-**C. Monorepo (Multi-Stack)**
+#### A. Backend (Go - Feature-Based)
 ```
 apps/
   backend/
-    user/...
-  frontend/
-    features/...
-  e2e/                                            # Shared E2E suite
-    api/
-      user-crud-api.e2e.test.ts                   # API-level E2E
-    ui/
-      checkout-flow.e2e.test.ts                   # UI-level E2E
+    task/
+      task.go                      # API handlers (public interface)
+      task_test.go                 # Unit tests (mocked dependencies)
+      business.go                  # Pure business logic
+      business_test.go             # Unit tests (pure functions)
+      store.go                     # interface TaskStore
+      postgres.go                  # implements TaskStore
+      postgres_integration_test.go # Integration tests (real DB)
+      mock_store.go               # Test implementation
+    migrations/
+      001_create_tasks.up.sql
+    user/
+      user.go
+      user_test.go
+      store.go
+      postgres.go
+      postgres_integration_test.go
+e2e/
+  task_crud_api.e2e.test.go       # Full API flow
 ```
+
+#### B. Frontend (Vue - Feature-Sliced)
+```
+
+apps/
+  frontend/
+    src/
+      features/
+        task/
+          index.ts                 # Public exports
+          task.service.ts          # Business logic
+          task.service.spec.ts     # Unit tests
+          task.api.ts              # interface TaskAPI
+          task.api.encore.ts       # Production implementation
+          task.api.mock.ts         # Test implementation
+          task.store.ts            # Pinia store
+          task.store.spec.ts       # Store unit tests
+        auth/
+        ...
+      components/
+        TaskInput.vue
+        TaskInput.spec.ts          # Component unit tests
+e2e/
+  task-management-flow.e2e.test.ts  # Full UI journey
+
+```
+
+#### C. Monorepo (Multi-Stack)
+```
+
+apps/
+  backend/
+    task/
+    ...
+  frontend/
+    src/features/task/
+    ...
+e2e/                             # Shared E2E suite
+  api/
+    task-crud-api.e2e.test.ts    # Backend-only E2E
+  ui/
+    checkout-flow.e2e.test.ts    # Full-stack E2E
+
+```
+
+**Key Principles:**
+- **Unit/Integration tests**: Co-located with implementation
+- **E2E tests**: Separate directory (crosses boundaries)
+- **Test doubles**: Co-located with interface (mock_store.go, taskAPI.mock.ts)
+- **Pattern consistency**: All features follow same structure
+  
 
 ### Test Quality Standards
 
@@ -1113,7 +1280,7 @@ expect(mockRepo.save).toHaveBeenCalledWith(user);
 - E2E tests: Critical user journeys
 
 ### Related Principles
-- [Hexagonal Architecture (Ports & Adapters)](#hexagonal-architecture-ports--adapters)
+- [Architectural Patterns - Testability-First Design](#architectural-patterns---testability-first-design)
 - [Error Handling Principles](#error-handling-principles)  
 
 ## Configuration Management Principles
@@ -1378,51 +1545,349 @@ production:
 
 ## Logging and Observability Principles
 
-### Universal Logging Standards
+### Logging Standards
 
-**Log Levels:**
+#### Log Levels (Standard Priority)
 
-1. **DEBUG:** Detailed diagnostic information for development (high volume, not in prod)  
-2. **INFO:** General informational messages about application flow (prod-safe)  
-3. **WARN:** Warning messages for potentially harmful situations (always enabled)  
-4. **ERROR:** Error events that might still allow application to continue (always enabled)  
-5. **FATAL/CRITICAL:** Severe errors causing application termination (rare)
+Use consistent log levels across all services:
 
-**Structured Logging:**
+| Level | When to Use | Examples |
+|-------|-------------|----------|
+| **TRACE** | Extremely detailed diagnostic info | Function entry/exit, variable states (dev only) |
+| **DEBUG** | Detailed flow for debugging | Query execution, cache hits/misses, state transitions |
+| **INFO** | General informational messages | Request started, task created, user logged in |
+| **WARN** | Potentially harmful situations | Deprecated API usage, fallback triggered, retry attempt |
+| **ERROR** | Error events that allow app to continue | Request failed, external API timeout, validation failure |
+| **FATAL** | Severe errors causing shutdown | Database unreachable, critical config missing |
 
-- Use JSON format for machine parsing in production  
-- Include standard fields in every entry:  
-  - timestamp (ISO 8601 with timezone)  
-  - level (debug/info/warn/error)  
-  - message (human-readable)  
-  - correlationId (request tracking)  
-  - service (application name)  
-  - version (app version)  
-  - environment (dev/staging/prod)
+#### Logging Rules
 
-**Correlation and Tracing:**
+**1. Every request/operation must log:**
+```
 
-- Correlation ID: Unique ID per request, propagated across all services  
-- Generate at entry point, pass via header (X-Correlation-ID)  
-- Include in all log entries for that request  
-- Enables end-to-end request tracing
+// Start of operation
+log.Info("creating task",
+"correlationId", correlationID,
+"userId", userID,
+"title", task.Title,
+)
 
-**What to Log:**
+// Success
+log.Info("task created successfully",
+"correlationId", correlationID,
+"taskId", task.ID,
+"duration", time.Since(start),
+)
 
-- ✅ Application lifecycle (startup, shutdown, config loaded)  
-- ✅ Business events (order created, payment processed)  
-- ✅ Performance metrics (slow queries, high latency)  
-- ✅ External service calls (API requests, response codes, duration)  
-- ✅ Background job execution (started, completed, failed)
+// Error
+log.Error("failed to create task",
+"correlationId", correlationID,
+"error", err,
+"userId", userID,
+)
 
-**What NOT to Log:**
+```
 
-- ❌ Passwords, API keys, tokens, secrets  
-- ❌ Credit card numbers, SSNs, PII (unless required and encrypted)  
-- ❌ Session tokens, JWTs  
-- ❌ Full request/response payloads (unless sanitized)
+**2. Always include context:**
+- `correlationId`: Trace requests across services (UUID)
+- `userId`: Who triggered the action
+- `duration`: Operation timing (milliseconds)
+- `error`: Error details (if failed)
+
+
+**3. Structured logging only** (no string formatting):
+```
+
+// ✅ Structured
+log.Info("user login", "userId", userID, "ip", clientIP)
+
+// ❌ String formatting
+log.Info(fmt.Sprintf("User %s logged in from %s", userID, clientIP))
+
+```
+
+**4. Security - Never log:**
+- Passwords or password hashes
+- API keys or tokens
+- Credit card numbers
+- PII in production logs (email/phone only if necessary and sanitized)
+- Full request/response bodies (unless DEBUG level in non-prod)
+
+**5. Performance - Never log in hot paths:**
+- Inside tight loops
+- Per-item processing in batch operations (use summary instead)
+- Synchronous logging in latency-critical paths
 
 **Best Practice:** "Use logger middleware redaction (e.g., pino-redact, zap masking) rather than manual string manipulation."
+
+#### Language-Specific Implementations
+
+##### Go (using slog standard library)
+```
+
+import "log/slog"
+
+// Configure logger
+logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+  Level: slog.LevelInfo, // Production default
+}))
+
+// Usage
+logger.Info("operation started",
+  "correlationId", correlationID,
+  "userId", userID,
+)
+
+logger.Error("operation failed",
+  "correlationId", correlationID,
+  "error", err,
+  "retryCount", retries,
+)
+
+```
+
+##### TypeScript/Node.js (using pino)
+```
+
+import pino from 'pino';
+
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+});
+
+logger.info({
+  correlationId,
+  userId,
+  duration: Date.now() - startTime,
+}, 'task created successfully');
+
+logger.error({
+  correlationId,
+  error: err.message,
+  stack: err.stack,
+}, 'failed to create task');
+
+```
+
+#### Python (using structlog)
+```
+
+import structlog
+
+logger = structlog.get_logger()
+
+logger.info("task_created",
+correlation_id=correlation_id,
+user_id=user_id,
+task_id=task.id,
+)
+
+logger.error("task_creation_failed",
+correlation_id=correlation_id,
+error=str(err),
+user_id=user_id,
+)
+
+```
+
+#### Log Patterns by Operation Type
+
+##### API Request/Response
+```
+
+// Request received
+log.Info("request received",
+  "method", r.Method,
+  "path", r.URL.Path,
+  "correlationId", correlationID,
+  "userId", userID,
+)
+
+// Request completed
+log.Info("request completed",
+  "correlationId", correlationID,
+  "status", statusCode,
+  "duration", duration,
+)
+
+```
+
+##### Database Operations
+```
+
+// Query start (DEBUG level)
+log.Debug("executing query",
+  "correlationId", correlationID,
+  "query", "SELECT * FROM tasks WHERE user_id = $1",
+)
+
+// Query success (DEBUG level)
+log.Debug("query completed",
+  "correlationId", correlationID,
+  "rowsReturned", len(results),
+  "duration", duration,
+)
+
+// Query error (ERROR level)
+log.Error("query failed",
+  "correlationId", correlationID,
+  "error", err,
+  "query", "SELECT * FROM tasks WHERE user_id = $1",
+)
+
+```
+
+##### External API Calls
+```
+
+// Call start
+log.Info("calling external API",
+  "correlationId", correlationID,
+  "service", "email-provider",
+  "endpoint", "/send",
+)
+
+// Retry (WARN level)
+log.Warn("retrying external API call",
+  "correlationId", correlationID,
+  "service", "email-provider",
+  "attempt", retryCount,
+  "error", err,
+)
+
+// Circuit breaker open (WARN level)
+log.Warn("circuit breaker opened",
+  "correlationId", correlationID,
+  "service", "email-provider",
+  "failureCount", failures,
+)
+
+```
+
+##### Background Jobs
+```
+
+// Job start
+log.Info("job started",
+  "jobId", jobID,
+  "jobType", "email-digest",
+)
+
+// Progress (INFO level - periodic, not per-item)
+log.Info("job progress",
+  "jobId", jobID,
+  "processed", 1000,
+  "total", 5000,
+  "percentComplete", 20,
+)
+
+// Job complete
+log.Info("job completed",
+  "jobId", jobID,
+  "duration", duration,
+  "itemsProcessed", count,
+)
+
+```
+
+##### Error Scenarios
+```
+
+// Recoverable error (ERROR level)
+log.Error("validation failed",
+  "correlationId", correlationID,
+  "userId", userID,
+  "error", "invalid email format",
+  "input", sanitizedInput, // Sanitized!
+)
+
+// Fatal error (FATAL level)
+log.Fatal("critical dependency unavailable",
+  "error", err,
+  "dependency", "database",
+  "action", "shutting down",
+)
+
+```
+
+#### Environment-Specific Configuration
+
+| Environment | Level | Format | Destination |
+|-------------|-------|--------|-------------|
+| **Development** | DEBUG | Pretty (colored) | Console |
+| **Staging** | INFO | JSON | Stdout → CloudWatch/GCP |
+| **Production** | INFO | JSON | Stdout → CloudWatch/GCP |
+
+**Configuration (Go example):**
+```
+
+func configureLogger() *slog.Logger {
+var handler slog.Handler
+
+    level := slog.LevelInfo
+    if os.Getenv("ENV") == "development" {
+        level = slog.LevelDebug
+        handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+            Level: level,
+        })
+    } else {
+        handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+            Level: level,
+        })
+    }
+    
+    return slog.New(handler)
+    }
+
+```
+
+#### Testing Logs
+
+**Unit tests:** Capture and assert on log output
+```
+
+// Go example
+func TestUserLogin(t *testing.T) {
+var buf bytes.Buffer
+logger := slog.New(slog.NewJSONHandler(&buf, nil))
+
+    // Test operation
+    service := NewUserService(logger, mockStore)
+    err := service.Login(ctx, email, password)
+    
+    // Assert logs
+    require.NoError(t, err)
+    logs := buf.String()
+    assert.Contains(t, logs, "user login successful")
+    assert.Contains(t, logs, email)
+    }
+
+```
+
+#### Monitoring Integration
+
+**Correlation IDs:**
+- Generate at ingress (API gateway, first handler)
+- Propagate through all services
+- Include in all logs, errors, and traces
+- Format: UUID v4
+
+**Log aggregation:**
+- Ship to centralized system (CloudWatch, GCP Logs, Datadog)
+- Index by: correlationId, userId, level, timestamp
+- Alert on ERROR/FATAL patterns
+- Dashboard: request rates, error rates, latency
+
+#### Checklist for Every Feature
+
+- [ ] All public operations log INFO on start
+- [ ] All operations log INFO/ERROR on complete/failure
+- [ ] All logs include correlationId
+- [ ] No sensitive data in logs
+- [ ] Structured logging (key-value pairs)
+- [ ] Appropriate log level used
+- [ ] Error logs include error details
+- [ ] Performance-critical paths use DEBUG level
 
 ### Observability Strategy
 

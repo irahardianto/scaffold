@@ -107,11 +107,27 @@ IF any fails → Refactor before proceeding
 
 ```
 
-7. Run specified verifications
+8. LOGGING IMPLEMENTATION MANDATORY
+   Before marking task complete:
+   - Entry point logging
+     • Log INFO at function/handler start
+     • Include correlationId, userId, operation name
+   - Exit point logging
+     • Log INFO on success with result summary
+     • Log ERROR on failure with error details
+   - Database/External API logging
+     • Log DEBUG for query execution (if enabled)
+     • Log WARN for retries
+     • Log ERROR for failures
+   - Security check
+     • No passwords, tokens, or sensitive data logged
+     • PII sanitized or excluded
 
-8. Call `codebase_investigator` → Confirm feature implemented
+9. Run specified verifications
 
-9. Mark task: `completed`
+10. Call `codebase_investigator` → Confirm feature implemented
+
+11. Mark task: `completed`
 
 **After batch completion:**
 Tasks completed: [X/Y]
