@@ -469,8 +469,8 @@ err = store.SaveOrder(ctx, order)
       features/                     # Business Features (Vertical Slices)
         task/                       # Feature: Task management
           TaskForm.vue              # Feature-specific components
-          TaskListItem.vue          # Feature-specific components
-          TaskFilters.vue           # Feature-specific components
+          TaskListItem.vue          
+          TaskFilters.vue           
           index.ts                  # Public exports
           task.service.ts           # Business logic
           task.api.ts               # interface TaskAPI

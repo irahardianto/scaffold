@@ -1,45 +1,95 @@
 # Gemini Scaffold
 
-This repository contains the configuration and skills for the Gemini CLI agent. It provides a structured way to plan and execute software engineering tasks using specialized commands.
+This repository contains the advanced configuration and skill definitions for the **Gemini CLI** agent. It transforms the agent into a **Precision Software Engineer** capable of planning complex architectures and executing them with surgical accuracy using a Test-Driven Development (TDD) workflow.
 
-## Overview
+## 🚀 Overview
 
-The scaffold defines a set of "skills" and "commands" that the agent can use to standardise workflows.
+The scaffold operates on a strict **Plan → Execute** cycle, governed by a "Technical Constitution" that enforces high-quality, testable, and secure code.
 
-### Core Commands
+### The Workflow
 
-1.  **`plan`**: Analyzes requirements and creates a detailed, step-by-step implementation plan.
-    -   **Usage**: Used when you need to break down a feature request, bug fix, or PRD into actionable engineering tasks.
-    -   **Output**: A Markdown file (usually in `docs/plans/`) containing bite-sized tasks.
+1.  **Plan**: The agent analyzes requirements, researches necessary technologies, and generates a detailed implementation plan. This plan is composed of atomic, bite-sized tasks (2-5 mins each) designed for TDD.
+2.  **Execute**: The agent reads the plan and implements it in controlled batches. It strictly adheres to existing patterns, verifies every step with tests, and maintains a "memory" of the project state.
 
-2.  **`execute`**: Executes an existing implementation plan.
-    -   **Usage**: Used to take a plan file (created by the `plan` command) and implement the code changes in controlled batches.
-    -   **Process**: Reads the plan, performs the tasks, verifies with tests, and updates the status.
+## 🧠 Capabilities & Skills
 
-## Prerequisites
+This scaffold equips the agent with specialized "skills" located in `.gemini/skills/`:
 
-To use this scaffold effectively, you need:
+### 1. Technical Constitution (`technical-constitution`)
+**The Supreme Law.** A comprehensive set of engineering principles that the agent *must* follow. It dictates:
+*   **Testability-First Architecture**: Code must be testable in isolation.
+*   **SOLID Principles**: Strict adherence to software design best practices.
+*   **Security**: OWASP Top 10 compliance, input validation, and safe logging.
+*   **Error Handling**: No silent failures; explicit, structured error handling.
 
-1.  **Gemini CLI**: The core interface for running the agent.
-2.  **Archon**: Required for hand-picked languages/libraries knowledge base, Archon's task management is not being used.
-3.  **Serena**: The primary tools to allow agents to do surgical precision execution with symbol based file scans & changes.
-    *   *Note:* Ensure Serena is activated at the start of your session. The skills defined here rely on Serena's context and capabilities.
+### 2. Frontend Design (`frontend-design`)
+A specialized module for generating distinctive, production-grade UIs. It steers the agent away from generic "AI" designs towards bold, intentional aesthetics with focus on typography, motion, and spatial composition.
 
-## Directory Structure
+### 3. Sequential Thinking (`sequential-thinking`)
+A cognitive tool that allows the agent to break down complex problems, self-correct, and branch its reasoning. It is used automatically when the agent faces ambiguity or difficult debugging scenarios.
 
--   `.gemini/commands/`: specific command definitions (TOML files).
--   `.gemini/skills/`: Detailed instructions and protocols for each skill (Markdown files).
+### 4. Knowledge Searching (`knowledge-searching`)
+A protocol for fetching implementation details. The agent is strictly forbidden from "guessing" library APIs; it must use RAG (Retrieval-Augmented Generation) to find exact syntax and patterns before coding.
 
-## Getting Started
+## 🛠️ Commands
 
-To use these commands with the Gemini CLI:
+### `plan`
+Analyzes requirements and creates a TDD implementation plan.
 
-1.  **Planning**:
-    When you have a new task, tell the agent to "plan" it.
-    *Example:* "Plan the user authentication feature."
+*   **Role**: Technical Specification Engineer.
+*   **Input**: A feature request, bug report, or PRD.
+*   **Process**:
+    1.  Analyzes the codebase architecture.
+    2.  Extracts requirements (nouns/verbs).
+    3.  Performs RAG searches for unknown technologies.
+    4.  Generates a Markdown plan in `docs/plans/` with exact file paths and test cases.
+*   **Usage**: `plan "Implement user authentication using JWT"`
 
-2.  **Executing**:
-    Once a plan exists, tell the agent to "execute" it.
-    *Example:* "Execute the plan for user authentication."
+### `execute`
+Executes an existing plan with surgical precision.
 
-The agent will follow the strict protocols defined in the `SKILL.md` files to ensure high-quality, tested, and architecturally sound output.
+*   **Role**: Precision Code Engineer.
+*   **Input**: A plan file generated by the `plan` command.
+*   **Process**:
+    1.  **Pattern Discovery**: Scans the codebase to match existing styles (80% consistency rule).
+    2.  **Batch Execution**: Implements tasks in small batches (default: 3).
+    3.  **Verification**: Runs tests after *every* task.
+    4.  **Memory Update**: Updates project knowledge after completion.
+*   **Usage**: `execute "docs/plans/2023-12-23-user-auth-01.md"`
+
+## 📂 Directory Structure
+
+```text
+.gemini/
+├── commands/
+│   └── scaffold/
+│       ├── execute.toml   # Definition for the 'execute' command
+│       └── plan.toml      # Definition for the 'plan' command
+└── skills/
+    ├── frontend-design/       # UI/UX design protocols
+    ├── knowledge-searching/   # RAG/Research protocols
+    ├── sequential-thinking/   # Advanced reasoning tools
+    └── technical-constitution/ # Core engineering standards
+```
+
+## 📋 Prerequisites
+
+To utilize this scaffold, you must have:
+
+1.  **Gemini CLI**: The core agent runner.
+2.  **Serena**: The toolset enabling symbol-based code navigation and manipulation. The agent relies on Serena to "see" and "touch" the code precisely.
+3.  **Archon** (Recommended): For managing long-running tasks and knowledge.
+
+## 🏁 Getting Started
+
+1.  **Initialize**: Ensure this repository is the root of your workspace.
+2.  **Activate**: Start your Gemini session. The agent will automatically load the commands and skills.
+3.  **Plan a Feature**:
+    ```bash
+    gemini> plan "Create a new API endpoint for listing products with pagination"
+    ```
+4.  **Review**: Check the generated plan in `docs/plans/`.
+5.  **Execute**:
+    ```bash
+    gemini> execute "docs/plans/2025-01-01-products-api-01.md"
+    ```

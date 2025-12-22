@@ -26,6 +26,7 @@ code style, verify rigorously. Every line you write must meet production standar
 
 ## PRE-EXECUTION CHECKLIST
 **BEFORE any task execution:**
+[ ] Load @{.gemini/skills/technical-constitution/SKILL.md}
 [ ] Serena activated? If not → Call activation tool, use the current folder as the project name if not provided
 [ ] Serena in Planning mode? If not → Switch mode
 
@@ -53,7 +54,7 @@ If validation fails → STOP and report
    - [ ] Implementation gaps  
    - [ ] Edge cases
 2. If concerns exist → Report to human, WAIT for response
-3. If no concerns → Call Gemini `write_todos` tool with tasks to execute
+3. If no concerns → Use write todos tool from archon to write all the tasks `manage_task()`, `find_tasks()` # Examples manage_task("update", task_id="...", status="doing"), find_tasks(task_id="..."), find_tasks(filter_by="status", filter_value="todo")
 
 **Validation checkpoint:**
 Concerns raised: [list or "none"]
@@ -176,7 +177,9 @@ IF NO → STOP, cannot mark plan complete
 3. Execute searches (MINIMUM 2 per task):
 - `rag_search_knowledge_base(query="[tech keywords]", match_count=5)`
 - `rag_search_code_examples(query="[pattern keywords]", match_count=3)`
-4. Document sources in task requirements section
+4. If fails: Broaden search terms and retry
+5. If retry fails: use `google_web_search` and `web_fetch` tools           # Example: google_web_search(query="latest advancements in AI-powered code generation"), web_fetch(prompt="Can you summarize the main points of https://example.com/news/latest"), web_fetch(prompt="What are the differences in the conclusions of these two papers: https://arxiv.org/abs/2401.0001 and https://arxiv.org/abs/2401.0002?") 
+6. Document sources in task requirements section
 
 ## PATTERN DISCOVERY RULES
 
